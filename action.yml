@@ -1,0 +1,48 @@
+name: Build Anda Project
+description: Builds an Anda project.
+
+inputs:
+  name:
+    required: true
+    description: The name of the project to build.
+  mockConfig:
+    required: true
+    description: The name of the mock config to use for the build.
+  extraInitRepos:
+    required: false
+    description: A comma-separated list of extra repositories to initialize before building the project.
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install DNF plugins
+      shell: bash
+      run: |
+        dnf install -y dnf-plugins-core
+    - name: Add repository
+      shell: bash
+      run: |
+        dnf config-manager --add-repo https://github.com/andaman-common-pkgs/subatomic-repos/raw/main/${{ inputs.subatomicRepo }}.repo
+    - name: Add extra repositories
+      shell: bash
+      if: inputs.extraInitRepos
+      run: |
+        # separate by comma and add each repo
+        IFS=',' read -ra EXTRA_REPOS <<< "${{ inputs.extraInitRepos }}"
+        for repo in "${EXTRA_REPOS[@]}"; do
+          dnf config-manager --add-repo $repo
+        done
+    - name: Install packages
+      shell: bash
+      run: |
+        dnf install -y createrepo_c git gcc curl wget anda subatomic-cli
+    - uses: actions/checkout@v3
+      with:
+        submodules: "recursive"
+        fetch-depth: 1
+    - name: Set up git repository
+      shell: bash
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - name: Build with Anda
+      shell: bash
+      run: anda build ${{ inputs.name }} --package rpm -c ${{ inputs.mockConfig }} 2>&1
