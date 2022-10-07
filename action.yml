@@ -11,6 +11,9 @@ inputs:
   extraInitRepos:
     required: false
     description: A comma-separated list of extra repositories to initialize before building the project.
+  andaRepo:
+    required: true
+    description: The DNF repository from which you want to install anda from
 
 runs:
   using: "composite"
@@ -22,7 +25,7 @@ runs:
     - name: Add repository
       shell: bash
       run: |
-        dnf config-manager --add-repo https://github.com/andaman-common-pkgs/subatomic-repos/raw/main/${{ inputs.subatomicRepo }}.repo
+        dnf config-manager --add-repo ${{ inputs.andaRepo }}
     - name: Add extra repositories
       shell: bash
       if: inputs.extraInitRepos
@@ -35,7 +38,7 @@ runs:
     - name: Install packages
       shell: bash
       run: |
-        dnf install -y createrepo_c git gcc curl wget anda subatomic-cli
+        dnf install -y createrepo_c git gcc curl wget anda
     - uses: actions/checkout@v3
       with:
         submodules: "recursive"
