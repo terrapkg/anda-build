@@ -14,6 +14,9 @@ inputs:
   andaRepo:
     required: true
     description: The DNF repository from which you want to install anda from
+  extraArgs:
+    required: false
+    description: Extra arguments to pass to anda
 
 runs:
   using: "composite"
@@ -48,4 +51,4 @@ runs:
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - name: Build with Anda
       shell: bash
-      run: anda build ${{ inputs.name }} --package rpm -c ${{ inputs.mockConfig }} 2>&1
+      run: anda build ${{ inputs.name }} --package rpm -c ${{ inputs.mockConfig }} ${{ inputs.extraArgs }}
