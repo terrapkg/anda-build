@@ -23,12 +23,10 @@ runs:
   steps:
     - name: Install DNF plugins
       shell: bash
-      run: |
-        dnf install -y dnf-plugins-core
+      run: dnf5 in -y dnf-plugins-core
     - name: Add repository
       shell: bash
-      run: |
-        dnf config-manager --add-repo ${{ inputs.andaRepo }}
+      run: dnf5 config-manager addrepo --from-repofile=${{ inputs.andaRepo }}
     - name: Add extra repositories
       shell: bash
       if: inputs.extraInitRepos
@@ -36,12 +34,11 @@ runs:
         # separate by comma and add each repo
         IFS=',' read -ra EXTRA_REPOS <<< "${{ inputs.extraInitRepos }}"
         for repo in "${EXTRA_REPOS[@]}"; do
-          dnf config-manager --add-repo $repo
+          dnf5 config-manager addrepo --from-repofile=$repo
         done
     - name: Install packages
       shell: bash
-      run: |
-        dnf install -y createrepo_c git gcc curl wget anda
+      run: dnf5 in -y createrepo_c git gcc curl wget anda
     - uses: actions/checkout@v3
       with:
         submodules: "recursive"
