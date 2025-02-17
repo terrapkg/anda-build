@@ -12,7 +12,7 @@ inputs:
     required: false
     description: A comma-separated list of extra repositories to initialize before building the project.
   andaRepo:
-    required: true
+    required: false
     description: The DNF repository from which you want to install anda from
   extraArgs:
     required: false
@@ -26,6 +26,7 @@ runs:
       run: dnf5 in -y dnf-plugins-core
     - name: Add repository
       shell: bash
+      if: inputs.andaRepo
       run: dnf5 config-manager addrepo --from-repofile=${{ inputs.andaRepo }}
     - name: Add extra repositories
       shell: bash
